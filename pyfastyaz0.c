@@ -183,8 +183,89 @@ static PyObject* pyfastyaz0_compress(PyObject* self, PyObject* args) {
   return dst_bytes;
 }
 
+static PyObject* pyfastyaz0_decompress(PyObject* self, PyObject* args) {
+  PyObject* comp_bytes;
+  
+  if (!PyArg_ParseTuple(args, "S", &comp_bytes)) {
+    return NULL; // Error already raised
+  }
+  
+  unsigned char* src;
+  src = (unsigned char*)PyBytes_AsString(comp_bytes);
+  if (!src) {
+    return NULL; // Error already raised
+  }
+  
+  int src_size = (int)PyBytes_Size(comp_bytes);
+  
+  if (src_size < 0x10) {
+    PyErr_SetString(PyExc_ValueError, "Compressed data is too small, must be at least 16 bytes.");
+    return NULL;
+  }
+  
+  int src_off = 4;
+  int uncomp_size = 0;
+  uncomp_size |= (src[src_off++] << 24) & 0xFF000000;
+  uncomp_size |= (src[src_off++] << 16) & 0x00FF0000;
+  uncomp_size |= (src[src_off++] << 8 ) & 0x0000FF00;
+  uncomp_size |= (src[src_off++]      ) & 0x000000FF;
+  
+  char* dst;
+  dst = malloc(uncomp_size);
+  if(!dst) {
+    return PyErr_NoMemory();
+  }
+  int dst_off = 0;
+  
+  src_off = 0x10;
+  
+  int valid_bit_count = 0;
+  unsigned char curr_block_control = 0;
+  while (dst_off < uncomp_size) {
+    if (src_off >= src_size) {
+      free(dst);
+      PyErr_SetString(PyExc_ValueError, "Compressed data is corrupt.");
+      return NULL;
+    }
+    
+    if (valid_bit_count == 0) {
+      curr_block_control = src[src_off++];
+      valid_bit_count = 8;
+    }
+    
+    if (curr_block_control & 0x80) {
+      dst[dst_off++] = src[src_off++];
+    } else {
+      unsigned char byte1 = src[src_off++];
+      unsigned char byte2 = src[src_off++];
+      
+      int distance = ((byte1 & 0x0F) << 8) | byte2;
+      int copy_src_offset = dst_off - (distance + 1);
+      int length = (byte1 >> 4);
+      if (length == 0) {
+        length = src[src_off++] + 0x12;
+      } else {
+        length += 2;
+      }
+      
+      for (int i = 0; i < length; i++) {
+        dst[dst_off++] = dst[copy_src_offset++];
+      }
+    }
+    
+    curr_block_control <<= 1;
+    valid_bit_count--;
+  }
+  
+  int dst_size = dst_off;
+  PyObject* dst_bytes = PyBytes_FromStringAndSize(dst, dst_size);
+  free(dst);
+  return dst_bytes;
+}
+
 static PyMethodDef pyfastyaz0Methods[] = {
   {"compress", pyfastyaz0_compress, METH_VARARGS, "Takes data as a bytes object and returns the data Yaz0 compressed as another bytes object."},
+  {"decompress", pyfastyaz0_decompress, METH_VARARGS, "Takes Yaz0 compressed data as a bytes object and returns the data decompressed as another bytes object."},
   {NULL, NULL, 0, NULL} // Sentinel
 };
 
