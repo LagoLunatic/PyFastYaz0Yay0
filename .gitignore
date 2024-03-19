@@ -1,1 +1,5 @@
-/build 
+/build
+/test
+build.bat
+*.egg-info/
+*.egg

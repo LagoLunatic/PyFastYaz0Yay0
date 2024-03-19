@@ -1,0 +1,11 @@
+{
+    "configurations": [
+        {
+            "name": "Windows",
+            "includePath": [
+                "C:/Python312/include"
+            ],
+        }
+    ],
+    "version": 4
+}
