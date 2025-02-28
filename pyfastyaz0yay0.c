@@ -1,10 +1,13 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
+#include <stdint.h>
 
-typedef unsigned char bool;
-typedef unsigned char u8;
-typedef unsigned short u16;
-typedef unsigned long u32;
+typedef uint8_t bool;
+typedef uint8_t u8;
+
+typedef uint16_t u16;
+typedef uint32_t u32;
+
 #define true 1
 #define false 0
 
