@@ -5,8 +5,7 @@ extra_compile_args.append('-Werror=incompatible-pointer-types')
 if False:
     extra_compile_args.append('-Werror')
 
-module1 = Extension(
-'pyfastyaz0yay0',
+module1 = Extension('pyfastyaz0yay0',
                     define_macros = [('MAJOR_VERSION', '2'),
                                      ('MINOR_VERSION', '0')],
                     include_dirs = [],
