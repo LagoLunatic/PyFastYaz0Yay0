@@ -4,7 +4,6 @@
 
 typedef uint8_t bool;
 typedef uint8_t u8;
-
 typedef uint16_t u16;
 typedef uint32_t u32;
 
@@ -192,6 +191,8 @@ static PyObject* compress_yaz0(PyObject* self, PyObject* args) {
   if (buffered_blocks == 8) {
     // If we stopped right at the end of a block, we instead write a single zero at the end for some reason.
     // I don't think it's necessary in practice, but we do it for maximum accuracy with the original algorithm.
+    // NOTE: I believe this is only accurate for TWW and TP. SMS and LM may not do this.
+    // TODO: Add an option to disable this behavior?
     dst[dst_off++] = 0;
   }
   
