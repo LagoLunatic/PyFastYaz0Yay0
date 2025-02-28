@@ -1,9 +1,7 @@
 from distutils.core import setup, Extension
 
 extra_compile_args = []
-extra_compile_args.append('-Werror=incompatible-pointer-types')
-if False:
-    extra_compile_args.append('-Werror')
+# extra_compile_args.append('-Werror')
 
 module1 = Extension('pyfastyaz0yay0',
                     define_macros = [('MAJOR_VERSION', '2'),
