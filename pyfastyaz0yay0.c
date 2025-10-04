@@ -1,14 +1,11 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 #include <stdint.h>
+#include <stdbool.h>
 
-typedef uint8_t bool;
 typedef uint8_t u8;
 typedef uint16_t u16;
 typedef uint32_t u32;
-
-#define true 1
-#define false 0
 
 #define MAX_RUN_LENGTH 0xFF + 0x12
 
